@@ -1,5 +1,13 @@
-import openai
-from sentence_transformers import SentenceTransformer
+try:
+    import openai
+except ImportError:
+    openai = None
+
+try:
+    from sentence_transformers import SentenceTransformer
+except ImportError:
+    SentenceTransformer = None
+
 import numpy as np
 from typing import List, Optional
 import os
@@ -16,7 +24,8 @@ class EmbeddingService:
         
         # Initialize sentence transformer as fallback
         try:
-            self.model = SentenceTransformer('all-MiniLM-L6-v2')
+            if SentenceTransformer:
+                self.model = SentenceTransformer('all-MiniLM-L6-v2')
         except Exception as e:
             print(f"Warning: Could not load SentenceTransformer: {e}")
     
@@ -35,7 +44,7 @@ class EmbeddingService:
         
         # Try OpenAI if API key is available
         try:
-            if os.getenv("OPENAI_API_KEY"):
+            if os.getenv("OPENAI_API_KEY") and openai:
                 embedding = await self._generate_openai_embedding(text)
                 if embedding:
                     return embedding
@@ -79,6 +88,9 @@ class EmbeddingService:
     
     async def _generate_openai_embedding(self, text: str) -> Optional[List[float]]:
         """Generate embedding using OpenAI"""
+        if not openai:
+            return None
+            
         if not self.openai_client:
             self.openai_client = openai.AsyncOpenAI(
                 api_key=os.getenv("OPENAI_API_KEY")

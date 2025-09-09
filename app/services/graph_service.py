@@ -1,4 +1,8 @@
-from neo4j import GraphDatabase
+try:
+    from neo4j import GraphDatabase
+except ImportError:
+    GraphDatabase = None
+
 import os
 from typing import List, Dict, Any
 from dotenv import load_dotenv
@@ -7,6 +11,11 @@ load_dotenv()
 
 class GraphService:
     def __init__(self):
+        if not GraphDatabase:
+            print("Warning: Neo4j driver not available. Graph functionality disabled.")
+            self.driver = None
+            return
+            
         self.driver = GraphDatabase.driver(
             os.getenv("NEO4J_URI", "bolt://localhost:7687"),
             auth=(
@@ -16,10 +25,14 @@ class GraphService:
         )
     
     def close(self):
-        self.driver.close()
+        if self.driver:
+            self.driver.close()
     
     async def create_legislator_node(self, legislator_data: Dict[str, Any]):
         """Create a legislator node in Neo4j"""
+        if not self.driver:
+            return None
+            
         with self.driver.session() as session:
             query = """
             MERGE (l:Legislator {id: $id})
@@ -36,6 +49,9 @@ class GraphService:
     
     async def create_bill_node(self, bill_data: Dict[str, Any]):
         """Create a bill node in Neo4j"""
+        if not self.driver:
+            return None
+            
         with self.driver.session() as session:
             query = """
             MERGE (b:Bill {id: $id})
@@ -52,6 +68,9 @@ class GraphService:
     
     async def create_vote_relationship(self, vote_data: Dict[str, Any]):
         """Create a vote relationship between legislator and bill"""
+        if not self.driver:
+            return None
+            
         with self.driver.session() as session:
             query = """
             MATCH (l:Legislator {id: $legislator_id})
@@ -82,6 +101,9 @@ class GraphService:
     
     async def get_entity_relationships(self, entity_id: str) -> List[Dict[str, Any]]:
         """Get all relationships for an entity"""
+        if not self.driver:
+            return []
+            
         with self.driver.session() as session:
             query = """
             MATCH (n {id: $entity_id})-[r]-(m)
