@@ -1,0 +1,115 @@
+_format_version: "3.0"
+
+services:
+  - name: auth-v1-get
+    url: http://auth:9999/verify
+    method: GET
+    protocol: http
+
+  - name: auth-v1-post
+    url: http://auth:9999/verify
+    method: POST
+    protocol: http
+
+  - name: auth-v1-put
+    url: http://auth:9999/verify
+    method: PUT
+    protocol: http
+
+  - name: auth-v1-patch
+    url: http://auth:9999/verify
+    method: PATCH
+    protocol: http
+
+  - name: auth-v1-delete
+    url: http://auth:9999/verify
+    method: DELETE
+    protocol: http
+
+  - name: rest-v1
+    url: http://rest:3000/
+    method: ANY
+    protocol: http
+
+  - name: realtime-v1
+    url: http://realtime:4000/socket
+    method: ANY
+    protocol: http
+
+  - name: storage-v1
+    url: http://storage:5000/
+    method: ANY
+    protocol: http
+
+routes:
+  - service: auth-v1-get
+    match:
+      paths:
+        - "/auth/v1/verify"
+      methods:
+        - GET
+
+  - service: auth-v1-post
+    match:
+      paths:
+        - "/auth/v1/verify"
+      methods:
+        - POST
+
+  - service: auth-v1-put
+    match:
+      paths:
+        - "/auth/v1/verify"
+      methods:
+        - PUT
+
+  - service: auth-v1-patch
+    match:
+      paths:
+        - "/auth/v1/verify"
+      methods:
+        - PATCH
+
+  - service: auth-v1-delete
+    match:
+      paths:
+        - "/auth/v1/verify"
+      methods:
+        - DELETE
+
+  - service: rest-v1
+    match:
+      paths:
+        - "/rest/v1/"
+
+  - service: realtime-v1
+    match:
+      paths:
+        - "/realtime/v1/"
+
+  - service: storage-v1
+    match:
+      paths:
+        - "/storage/v1/"
+
+plugins:
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - HEAD
+        - PUT
+        - PATCH
+        - POST
+        - DELETE
+      headers:
+        - Accept
+        - Accept-Version
+        - Content-Length
+        - Content-MD5
+        - Content-Type
+        - Date
+        - X-Auth-Token
+        - Authorization

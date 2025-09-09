@@ -1,0 +1,30 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+
+  - name: PostgreSQL
+    type: postgres
+    url: postgres:5432
+    database: political_analysis
+    user: postgres
+    secureJsonData:
+      password: political123
+    jsonData:
+      sslmode: disable
+      maxOpenConns: 0
+      maxIdleConns: 2
+      connMaxLifetime: 14400
+
+  - name: Elasticsearch
+    type: elasticsearch
+    url: http://elasticsearch:9200
+    database: "*"
+    jsonData:
+      esVersion: 80
+      timeField: "@timestamp"
