@@ -1,0 +1,17 @@
+# ======================================================================
+# Name: Dockerfile.civic
+# Date: 2025-09-09
+# Version: 0.2.0
+# Log Summary: Build image for Civic Legislative API
+# Description: Container for running civic_legis_platform.py service
+# Change Summary: Initial version
+# Inputs: Environment variables set in docker-compose
+# Outputs: Running API at port 8088
+# ======================================================================
+FROM python:3.11-slim
+WORKDIR /app
+COPY civic_legis_platform.py /app/
+RUN pip install --no-cache-dir requests tqdm pydantic fastapi uvicorn python-dotenv neo4j \
+    beautifulsoup4 lxml PyPDF2 sentence-transformers faiss-cpu transformers numpy scikit-learn
+EXPOSE 8088
+CMD ["python", "civic_legis_platform.py", "--serve"]

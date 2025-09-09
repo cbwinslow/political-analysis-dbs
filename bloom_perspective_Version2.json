@@ -1,0 +1,14 @@
+{
+  "name": "CivicHubPerspective",
+  "version": "1.0",
+  "lastUpdated": "2025-09-09T00:00:00Z",
+  "categories": [
+    {
+      "name": "Bills",
+      "label": "Bill",
+      "cypher": "MATCH (b:Bill) RETURN b",
+      "style": { "color": "#1f77b4", "size": 55 }
+    }
+  ],
+  "relationships": []
+}

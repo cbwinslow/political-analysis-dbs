@@ -1,0 +1,104 @@
+# =================================================================================================
+# Name: docker-compose.yml
+# Date: 2025-09-09
+# Script Name: docker-compose.yml
+# Version: 0.5.0
+# Log Summary: Unified stack with Postgres, LocalAI, optional Neo4j and FalkorDB, API.
+# Description: Compose file for local or remote container orchestration.
+# Change Summary: Aligned to unified script.
+# Inputs: .env variables
+# Outputs: Running service stack
+# =================================================================================================
+version: "3.9"
+services:
+  postgres:
+    image: ankane/pgvector:latest
+    container_name: civic_pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  localai:
+    image: localai/localai:latest
+    container_name: localai
+    restart: unless-stopped
+    environment:
+      - DEBUG=false
+    volumes:
+      - ./models:/models
+    ports:
+      - "8080:8080"
+
+  neo4j:
+    image: neo4j:5.20
+    container_name: neo4j
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: "neo4j/${NEO4J_PASSWORD}"
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+
+  # Uncomment if using FalkorDB
+  # falkordb:
+  #   image: falkordb/falkordb:latest
+  #   container_name: falkordb
+  #   restart: unless-stopped
+  #   ports:
+  #     - "6379:6379"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: civic_api
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      EMBED_MODEL: all-MiniLM-L6-v2
+      LOCALAI_ENDPOINT: http://localai:8080/v1
+      GOVINFO_API_KEY: ${GOVINFO_API_KEY}
+      OPENSTATES_API_KEY: ${OPENSTATES_API_KEY}
+      PROPUBLICA_API_KEY: ${PROPUBLICA_API_KEY}
+      ENABLE_NEO4J: ${ENABLE_NEO4J}
+      NEO4J_URI: ${NEO4J_URI}
+      NEO4J_USER: ${NEO4J_USER}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      ENABLE_FALKORDB: ${ENABLE_FALKORDB}
+      ENABLE_GRAPHITI: ${ENABLE_GRAPHITI}
+      CF_ACCOUNT_ID: ${CF_ACCOUNT_ID}
+      CF_API_TOKEN: ${CF_API_TOKEN}
+      CF_VECTORIZE_INDEX: ${CF_VECTORIZE_INDEX}
+    depends_on:
+      - postgres
+      - localai
+      - neo4j
+    volumes:
+      - ./data:/app/data
+    command: >
+      sh -c "python civic_legis_unified.py
+             --init-db
+             --sync-govinfo --govinfo-collections BILLSTATUS
+             --embed
+             --build-profiles
+             --serve --port 8100"
+    ports:
+      - "8100:8100"
+
+volumes:
+  pg_data:
+  neo4j_data:
+  neo4j_logs:

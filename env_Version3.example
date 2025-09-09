@@ -1,0 +1,42 @@
+# =================================================================================================
+# Name: Environment Example
+# Date: 2025-09-09
+# Script Name: .env.example
+# Version: 0.4.0
+# Log Summary:
+#   - Variables for PostgreSQL, APIs, Graph, Models.
+# Description:
+#   Copy to .env and adjust secrets.
+# Change Summary:
+#   Added FalkorDB, ProPublica, RAGFlow triggers.
+# Inputs:
+#   None (template).
+# Outputs:
+#   N/A.
+# =================================================================================================
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=civic_kg
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+
+GOVINFO_API_KEY=your_govinfo_key
+OPENSTATES_API_KEY=your_openstates_key
+PROPUBLICA_API_KEY=your_propublica_key
+RAGFLOW_TRIGGER_URL=
+
+EMBED_MODEL=all-MiniLM-L6-v2
+MODEL_NAME=gpt-4o-mini
+LOCALAI_ENDPOINT=http://localai:8080/v1
+OPENAI_API_KEY=sk-optional
+
+ENABLE_NEO4J=0
+NEO4J_URI=bolt://neo4j:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=neo4jpass
+
+ENABLE_FALKORDB=0
+FALKORDB_HOST=falkordb
+FALKORDB_PORT=6379
+
+ENABLE_GRAPHITI=0

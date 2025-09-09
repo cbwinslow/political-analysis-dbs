@@ -1,0 +1,38 @@
+# =================================================================================================
+# Name: CodeQL Analysis
+# Date: 2025-09-09
+# Script Name: codeql.yml
+# Version: 0.5.0
+# Log Summary: Security static analysis.
+# Description: Runs CodeQL on main branches & PRs.
+# Change Summary: Initial creation.
+# Inputs: N/A
+# Outputs: CodeQL results
+# =================================================================================================
+name: "CodeQL"
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  schedule:
+    - cron: '0 3 * * 6'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'python' ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+      - uses: github/codeql-action/analyze@v3

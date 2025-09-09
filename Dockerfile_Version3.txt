@@ -1,0 +1,24 @@
+# =================================================================================================
+# Name: Dockerfile
+# Date: 2025-09-09
+# Script Name: Dockerfile
+# Version: 0.5.0
+# Log Summary: Builds unified orchestrator image.
+# Description: Minimal Python image for ingestion, embeddings, and API.
+# Change Summary: Upgraded to unified script version.
+# Inputs: civic_legis_unified.py
+# Outputs: Container exposing port 8100.
+# =================================================================================================
+FROM python:3.11-slim
+
+WORKDIR /app
+COPY civic_legis_unified.py /app/
+
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential git curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir requests tqdm psycopg2-binary pydantic fastapi uvicorn python-dotenv \
+    sentence-transformers numpy scikit-learn beautifulsoup4 lxml PyPDF2 redis neo4j
+
+EXPOSE 8100
+CMD ["python","civic_legis_unified.py","--serve","--port","8100"]

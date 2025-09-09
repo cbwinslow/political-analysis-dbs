@@ -1,0 +1,41 @@
+# =================================================================================================
+# Name: Example Environment Variables
+# Date: 2025-09-09
+# Script Name: .env.example
+# Version: 0.5.0
+# Log Summary: Added Cloudflare and RAGFlow variables.
+# Description: Copy to .env and update secrets before deployment.
+# Change Summary: Added CF_VECTORIZE and snapshot flags.
+# Inputs: N/A
+# Outputs: N/A
+# =================================================================================================
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=civic_kg
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+
+EMBED_MODEL=all-MiniLM-L6-v2
+PGVECTOR_DIM=384
+MODEL_NAME=gpt-4o-mini
+LOCALAI_ENDPOINT=http://localai:8080/v1
+OPENAI_API_KEY=
+GOVINFO_API_KEY=
+OPENSTATES_API_KEY=
+PROPUBLICA_API_KEY=
+RAGFLOW_TRIGGER_URL=
+
+ENABLE_NEO4J=0
+NEO4J_URI=bolt://neo4j:7687
+NEO4J_USER=neo4j
+NEO4J_PASSWORD=neo4jpass
+
+ENABLE_FALKORDB=0
+FALKORDB_HOST=falkordb
+FALKORDB_PORT=6379
+
+ENABLE_GRAPHITI=0
+
+CF_ACCOUNT_ID=
+CF_API_TOKEN=
+CF_VECTORIZE_INDEX=

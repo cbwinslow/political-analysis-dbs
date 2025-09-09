@@ -1,0 +1,18 @@
+# =================================================================================================
+# Name: Dependabot
+# Date: 2025-09-09
+# Script Name: dependabot.yml
+# Version: 0.5.0
+# Log Summary: Automated dependency updates.
+# Description: Keeps Python dependencies current.
+# Change Summary: Initial version.
+# Inputs: N/A
+# Outputs: Update PRs
+# =================================================================================================
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5

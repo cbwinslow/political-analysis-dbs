@@ -1,0 +1,29 @@
+# =================================================================================================
+# Name: Civic Legislative Hub Dockerfile
+# Date: 2025-09-09
+# Script Name: Dockerfile
+# Version: 0.4.0
+# Log Summary:
+#   - Builds runtime for orchestrator & API.
+# Description:
+#   Installs Python dependencies for ingestion, embeddings, API serving.
+# Change Summary:
+#   Added redis & neo4j optional dependencies.
+# Inputs:
+#   civic_legis_hub.py
+# Outputs:
+#   Container exposing API on 8095 by default.
+# =================================================================================================
+FROM python:3.11-slim
+
+WORKDIR /app
+COPY civic_legis_hub.py /app/
+
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential git curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir requests tqdm psycopg2-binary pydantic fastapi uvicorn python-dotenv \
+    sentence-transformers numpy scikit-learn beautifulsoup4 lxml PyPDF2 redis neo4j
+
+EXPOSE 8095
+CMD ["python","civic_legis_hub.py","--serve","--port","8095"]

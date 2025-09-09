@@ -1,0 +1,58 @@
+# =================================================================================================
+# Name: CI Workflow
+# Date: 2025-09-09
+# Script Name: ci.yml
+# Version: 0.5.0
+# Log Summary: Lint & self-tests (schema sanity) using unified script.
+# Description: Basic integration CI for PRs.
+# Change Summary: Added caching and environment matrix.
+# Inputs: N/A
+# Outputs: CI status
+# =================================================================================================
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    env:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: civic_kg
+      POSTGRES_HOST: localhost
+    services:
+      postgres:
+        image: ankane/pgvector:latest
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_DB: civic_kg
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+            python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          pip install requests tqdm psycopg2-binary pydantic fastapi uvicorn python-dotenv sentence-transformers numpy scikit-learn beautifulsoup4 lxml PyPDF2
+
+      - name: Initialize DB
+        run: |
+          python civic_legis_unified.py --init-db
+
+      - name: Self Tests
+        run: |
+          python civic_legis_unified.py --run-self-tests

@@ -1,0 +1,13 @@
+# =================================================================================================
+# Name: CODEOWNERS
+# Date: 2025-09-09
+# Script Name: CODEOWNERS
+# Version: 0.5.0
+# Log Summary: Set code review ownership.
+# Description: Ensures PRs require review by listed owners.
+# Change Summary: Initial version.
+# Inputs: N/A
+# Outputs: N/A
+# =================================================================================================
+* @cbwinslow
+.github/ @cbwinslow

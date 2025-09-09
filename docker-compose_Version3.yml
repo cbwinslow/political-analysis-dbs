@@ -1,0 +1,109 @@
+# =================================================================================================
+# Name: Docker Compose Stack
+# Date: 2025-09-09
+# Script Name: docker-compose.yml
+# Version: 0.4.0
+# Log Summary:
+#   - Services: Postgres(pgvector), LocalAI, API, optional Neo4j, FalkorDB.
+# Description:
+#   Orchestrates full environment for remote/local deployment.
+# Change Summary:
+#   Added falkordb service placeholder (commented - supply image when available).
+# Inputs:
+#   .env environment variables.
+# Outputs:
+#   Running containers and persisted volumes.
+# =================================================================================================
+version: "3.9"
+services:
+  postgres:
+    image: ankane/pgvector:latest
+    container_name: civic_pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  localai:
+    image: localai/localai:latest
+    container_name: localai
+    restart: unless-stopped
+    environment:
+      - DEBUG=false
+    volumes:
+      - ./models:/models
+    ports:
+      - "8080:8080"
+
+  neo4j:
+    image: neo4j:5.20
+    container_name: neo4j
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: "neo4j/${NEO4J_PASSWORD}"
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+
+  # FalkorDB (RedisGraph successor). Adjust image if official tag differs.
+  # falkordb:
+  #   image: falkordb/falkordb:latest
+  #   container_name: falkordb
+  #   restart: unless-stopped
+  #   ports:
+  #     - "6379:6379"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: civic_api
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      EMBED_MODEL: all-MiniLM-L6-v2
+      LOCALAI_ENDPOINT: http://localai:8080/v1
+      GOVINFO_API_KEY: ${GOVINFO_API_KEY}
+      OPENSTATES_API_KEY: ${OPENSTATES_API_KEY}
+      PROPUBLICA_API_KEY: ${PROPUBLICA_API_KEY}
+      ENABLE_NEO4J: ${ENABLE_NEO4J}
+      NEO4J_URI: ${NEO4J_URI}
+      NEO4J_USER: ${NEO4J_USER}
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD}
+      ENABLE_FALKORDB: ${ENABLE_FALKORDB}
+      ENABLE_GRAPHITI: ${ENABLE_GRAPHITI}
+      RAGFLOW_TRIGGER_URL: ${RAGFLOW_TRIGGER_URL}
+    depends_on:
+      - postgres
+      - localai
+      - neo4j
+    volumes:
+      - ./data:/app/data
+    command: >
+      sh -c "python civic_legis_hub.py
+             --init-db
+             --sync-govinfo --govinfo-collections BILLSTATUS
+             --sync-openstates --openstates-states 'California,New York'
+             --propublica-sync --congress 118 --propublica-chambers house,senate
+             --embed
+             --build-profiles
+             --serve --port 8095"
+    ports:
+      - "8095:8095"
+
+volumes:
+  pg_data:
+  neo4j_data:
+  neo4j_logs:
