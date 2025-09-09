@@ -1,0 +1,57 @@
+# Development overrides for docker-compose.yml
+version: "3.9"
+
+services:
+  api:
+    build:
+      target: development
+    volumes:
+      - .:/app
+      - /app/.uv  # Exclude UV cache from bind mount
+    environment:
+      - DEBUG=true
+      - RELOAD=true
+    command: >
+      sh -c "uv sync --dev && 
+             uv run python civic_legis_unified.py --init-db && 
+             uv run uvicorn civic_legis_unified:app --host 0.0.0.0 --port 8100 --reload"
+    develop:
+      watch:
+        - action: sync
+          path: ./civic_legis_unified.py
+          target: /app/civic_legis_unified.py
+        - action: sync
+          path: ./pyproject.toml
+          target: /app/pyproject.toml
+        - action: rebuild
+          path: ./requirements.txt
+          
+  # Additional development tools
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: civic_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@civic.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    profiles:
+      - dev-tools
+
+  jupyter:
+    image: jupyter/datascience-notebook:latest
+    container_name: civic_jupyter
+    restart: unless-stopped
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./data:/home/jovyan/data
+    profiles:
+      - dev-tools
