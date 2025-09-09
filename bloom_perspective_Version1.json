@@ -1,0 +1,42 @@
+{
+  "name": "CivicLegislationPerspective",
+  "version": "1.0",
+  "lastUpdated": "2025-09-09T00:00:00Z",
+  "categories": [
+    {
+      "name": "Bills",
+      "label": "Bill",
+      "cypher": "MATCH (b:Bill) RETURN b",
+      "style": { "color": "#1f77b4", "size": 55 }
+    },
+    {
+      "name": "Sections",
+      "label": "Section",
+      "cypher": "MATCH (s:Section) RETURN s",
+      "style": { "color": "#ff7f0e", "size": 30 }
+    },
+    {
+      "name": "Politicians",
+      "label": "Politician",
+      "cypher": "MATCH (p:Politician) RETURN p",
+      "style": { "color": "#2ca02c", "size": 50 }
+    }
+  ],
+  "relationships": [
+    {
+      "name": "SPONSORS",
+      "cypher": "MATCH (p:Politician)-[r:SPONSORS]->(b:Bill) RETURN p,r,b",
+      "style": { "color": "#9467bd" }
+    },
+    {
+      "name": "HAS_SECTION",
+      "cypher": "MATCH (b:Bill)-[r:HAS_SECTION]->(s:Section) RETURN b,r,s",
+      "style": { "color": "#8c564b" }
+    },
+    {
+      "name": "VOTED_ON",
+      "cypher": "MATCH (p:Politician)-[r:VOTED_ON]->(b:Bill) RETURN p,r,b",
+      "style": { "color": "#d62728" }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+# =================================================================================================
+# Name: .gitignore
+# Date: 2025-09-09
+# Script Name: .gitignore
+# Version: 0.5.0
+# Log Summary: Standard ignores plus data exports.
+# Description: Prevents committing build artifacts and sensitive cache.
+# Change Summary: Added data/cache and terraform state.
+# Inputs: N/A
+# Outputs: N/A
+# =================================================================================================
+__pycache__/
+*.pyc
+.venv/
+.env
+.env.*
+data/cache/
+data/govinfo/
+data/local/
+data/exports/
+models/
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+.cache/
+dist/
+build/
+*.log

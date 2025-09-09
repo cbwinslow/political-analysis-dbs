@@ -1,0 +1,12 @@
+# =========================================================================================
+# Name: .env.example
+# Date: 2025-09-09
+# Version: 0.2.0
+# Description: Example environment variables for Civic Legislative Platform
+# =========================================================================================
+NEO4J_PASSWORD=changeme
+GOVINFO_API_KEY=your_govinfo_key_here
+EMBED_MODEL=all-MiniLM-L6-v2
+MODEL_NAME=gpt-4o-mini
+LOCALAI_ENDPOINT=http://localai:8080/v1
+OPENAI_API_KEY=sk-optional-if-using-openai

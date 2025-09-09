@@ -1,0 +1,84 @@
+# =========================================================================================
+# Name: docker-compose.yml
+# Date: 2025-09-09
+# Version: 0.2.0
+# Log Summary: Base stack for civic legislative platform (Neo4j, API, LocalAI, Flowise, n8n)
+# Description: Provides containerized deployment for graph DB, AI API, and optional automation tools.
+# Change Summary: Initial creation aligned with script v0.2.0
+# Inputs: .env variables (NEO4J_PASSWORD, GOVINFO_API_KEY)
+# Outputs: Running services; persistent volumes for neo4j & n8n; local data folder bind-mounted.
+# =========================================================================================
+version: "3.9"
+services:
+  neo4j:
+    image: neo4j:5.20
+    container_name: neo4j
+    restart: unless-stopped
+    environment:
+      NEO4J_AUTH: "neo4j/${NEO4J_PASSWORD}"
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+
+  localai:
+    image: localai/localai:latest
+    container_name: localai
+    restart: unless-stopped
+    environment:
+      - DEBUG=false
+    volumes:
+      - ./models:/models
+    ports:
+      - "8080:8080"
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.civic
+    container_name: civic_api
+    restart: unless-stopped
+    environment:
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - LOCALAI_ENDPOINT=http://localai:8080/v1
+      - EMBED_MODEL=all-MiniLM-L6-v2
+      - GOVINFO_API_KEY=${GOVINFO_API_KEY}
+    depends_on:
+      - neo4j
+    volumes:
+      - ./data:/app/data
+    command: >
+      sh -c "python civic_legis_platform.py
+             --govinfo-sync --govinfo-collections BILLSTATUS,PLAW
+             --govinfo-days 7 --build-rag --serve"
+    ports:
+      - "8088:8088"
+
+  flowise:
+    image: flowiseai/flowise:latest
+    container_name: flowise
+    restart: unless-stopped
+    environment:
+      - PORT=3000
+    ports:
+      - "3000:3000"
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=false
+    volumes:
+      - n8n_data:/home/node/.n8n
+    ports:
+      - "5678:5678"
+
+volumes:
+  neo4j_data:
+  neo4j_logs:
+  n8n_data:
