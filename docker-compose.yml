@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   # PostgreSQL with pgvector for embeddings
   postgres:
@@ -124,7 +122,6 @@ services:
     environment:
       - DEBUG=false
       - MODELS_PATH=/models
-      - GALLERIES='[{"name":"model-gallery", "url":"github:go-skynet/model-gallery/index.yaml"}, {"url": "github:go-skynet/model-gallery/huggingface.yaml","name":"huggingface"}]'
     volumes:
       - ./models:/models
       - localai_data:/usr/share/local-ai

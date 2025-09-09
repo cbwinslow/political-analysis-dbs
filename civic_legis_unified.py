@@ -1036,6 +1036,12 @@ def main():
 
     ensure_dirs("data/cache","data/local")
 
+    # Review Report can run without database
+    if args.generate_review_report:
+        generate_review_report()
+        return
+
+    # All other commands need database connection
     pg=PGStore(); pg.connect()
     if args.init_db:
         pg.init_schema()
@@ -1131,10 +1137,6 @@ def main():
     # RAGFlow
     if args.ragflow_trigger_url and new_docs:
         trigger_ragflow(args.ragflow_trigger_url, {"documents_ingested":len(new_docs)})
-
-    # Review Report
-    if args.generate_review_report:
-        generate_review_report()
 
     # Agent
     agent=None
