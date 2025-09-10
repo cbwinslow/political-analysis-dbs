@@ -305,6 +305,3 @@ def run_tests():
     print("Integration tests (require running services):")
     print("Run with: pytest -m integration")
     print("="*50)
-
-if __name__ == "__main__":
-    run_tests()
