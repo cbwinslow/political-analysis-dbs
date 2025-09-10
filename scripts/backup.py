@@ -133,9 +133,44 @@ class BackupManager:
                 logger.error(f"Redis BGSAVE failed: {result.stderr}")
                 return False
             
-            # Wait for save to complete
+            # Wait for BGSAVE to complete by polling LASTSAVE
             import time
-            time.sleep(5)
+            # Get initial LASTSAVE timestamp
+            lastsave_result = subprocess.run([
+                'docker', 'compose', 'exec', '-T', 'redis',
+                'redis-cli', '-a', 'political123', 'LASTSAVE'
+            ], capture_output=True, text=True)
+            if lastsave_result.returncode != 0:
+                logger.error(f"Redis LASTSAVE failed: {lastsave_result.stderr}")
+                return False
+            try:
+                initial_lastsave = int(lastsave_result.stdout.strip())
+            except Exception as e:
+                logger.error(f"Could not parse LASTSAVE output: {lastsave_result.stdout} ({e})")
+                return False
+            # Poll for LASTSAVE to change
+            max_wait = 60  # seconds
+            waited = 0
+            while waited < max_wait:
+                time.sleep(1)
+                waited += 1
+                poll_result = subprocess.run([
+                    'docker', 'compose', 'exec', '-T', 'redis',
+                    'redis-cli', '-a', 'political123', 'LASTSAVE'
+                ], capture_output=True, text=True)
+                if poll_result.returncode != 0:
+                    logger.error(f"Redis LASTSAVE poll failed: {poll_result.stderr}")
+                    return False
+                try:
+                    current_lastsave = int(poll_result.stdout.strip())
+                except Exception as e:
+                    logger.error(f"Could not parse LASTSAVE output: {poll_result.stdout} ({e})")
+                    return False
+                if current_lastsave > initial_lastsave:
+                    break
+            else:
+                logger.error("Timeout waiting for Redis BGSAVE to complete")
+                return False
             
             # Copy RDB file
             redis_backup = self.current_backup_dir / "redis_dump.rdb"
