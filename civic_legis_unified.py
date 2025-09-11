@@ -64,17 +64,17 @@ REQUIRED = [
     "python-dotenv", "sentence-transformers", "numpy", "scikit-learn",
     "beautifulsoup4", "lxml", "PyPDF2"
 ]
-if os.environ.get("SKIP_AUTO_INSTALL") != "1" and not os.environ.get("VIRTUAL_ENV"):
-    missing = []
-    for pkg in REQUIRED:
-        try:
-            __import__(pkg.split("==")[0])
-        except ImportError:
-            missing.append(pkg)
-    if missing:
-        print(f"[SETUP] Installing missing packages: {missing}")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", *missing])
-
+missing = []
+for pkg in REQUIRED:
+    try:
+        __import__(pkg.split("==")[0])
+    except ImportError:
+        missing.append(pkg)
+if missing:
+    print(f"[ERROR] Missing required packages: {missing}")
+    print("[ERROR] Please install them manually, e.g.:")
+    print(f"    pip install {' '.join(missing)}")
+    sys.exit(1)
 import requests
 import psycopg2
 import psycopg2.extras
