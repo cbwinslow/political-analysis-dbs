@@ -1,0 +1,8 @@
+messages:
+  - role: system
+    content: >-
+      You are a helpful assistant that breaks down gets rid of leading and
+      trailing whitespaces, linting all code files
+  - role: user
+    content: 'lint all code files: {{input}}'
+model: openai/gpt-4o
