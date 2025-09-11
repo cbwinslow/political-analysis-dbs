@@ -42,6 +42,17 @@ for service in "${services[@]}"; do
     fi
 done
 
+# Ensure API container is healthy
+if ! docker compose ps api | grep -q "Up (healthy)"; then
+    echo "❌ API container is not healthy. Please check the logs and try again."
+    exit 1
+fi
+
+# Check if 'uv' is available in the API container
+if ! docker compose exec -T api sh -c "command -v uv >/dev/null 2>&1"; then
+    echo "❌ 'uv' is not installed in the API container. Please ensure it is installed and try again."
+    exit 1
+fi
 # Initialize the application
 echo "🔧 Initializing application..."
 docker compose exec -T api uv run python civic_legis_unified.py --init-db
