@@ -1,0 +1,7 @@
+preload_models:
+  - url: "https://huggingface.co/microsoft/DialoGPT-medium/resolve/main/pytorch_model.bin"
+    name: "gpt-3.5-turbo"
+    config_file: "chat_config.yaml"
+  - url: "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2"
+    name: "text-embedding-ada-002"
+    config_file: "embedding_config.yaml"
